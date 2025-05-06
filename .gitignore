@@ -34,8 +34,3 @@ temp/
 
 # Optional: ignore TypeScript build output
 *.tsbuildinfo
-
-# Optional: ignore lock files if you don't want to commit them
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml

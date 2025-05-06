@@ -1,5 +1,6 @@
 {
     "name": "my-react-table-app",
+    "homepage": "https://Akshansh20018.github.io/your-repo-name",
     "version": "1.0.0",
     "private": true,
     "dependencies": {
@@ -9,6 +10,8 @@
         "react-scripts": "5.0.0"
     },
     "scripts": {
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d build",
         "start": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
@@ -25,5 +28,8 @@
             "last 1 firefox version",
             "last 1 safari version"
         ]
+    },
+    "devDependencies": {
+        "gh-pages": "^6.3.0"
     }
 }

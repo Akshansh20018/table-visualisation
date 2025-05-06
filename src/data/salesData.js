@@ -1,4 +1,3 @@
-// src/data/salesData.js
 const salesData = [
     { id: 1, product: 'Laptop', price: 1299.99, quantity: 5, date: '2025-04-15', customer: 'Tech Solutions Inc.' },
     { id: 2, product: 'Smartphone', price: 899.99, quantity: 10, date: '2025-04-18', customer: 'Mobile World' },

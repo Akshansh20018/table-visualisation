@@ -10,7 +10,6 @@ const PriceRangeFilter = forwardRef(({ min, max, onChange }, ref) => {
     max: max
   });
 
-  // Expose reset function to parent via ref
   useImperativeHandle(ref, () => ({
     resetPriceRangeFilter: () => {
       setValues([min, max]);

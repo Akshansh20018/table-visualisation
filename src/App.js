@@ -1,4 +1,3 @@
-// src/App.js
 import React from 'react';
 import SalesTable from './components/SalesTable';
 import ThemeToggle from './components/ThemeToggle';
