@@ -1,5 +1,6 @@
 // src/components/SalesTable.js
 import React, { useState } from 'react';
+import PriceRangeFilter from './PriceRangeFilter'; // 👈 Import the new component
 
 const SalesTable = ({ data }) => {
   // Existing sorting state
@@ -17,6 +18,19 @@ const SalesTable = ({ data }) => {
     minDate: '',
     maxDate: ''
   });
+
+    // Calculate min and max prices from data for the slider
+    const minDataPrice = Math.floor(Math.min(...data.map(item => item.price)));
+    const maxDataPrice = Math.ceil(Math.max(...data.map(item => item.price)));
+  
+    // Handle price range changes from the slider component
+    const handlePriceRangeChange = ({ min, max }) => {
+      setFilters({
+        ...filters,
+        minPrice: min,
+        maxPrice: max
+      });
+    };  
 
   // Existing sorting logic
   const requestSort = (key) => {
@@ -125,30 +139,15 @@ const SalesTable = ({ data }) => {
           />
         </div>
         
-        <div>
-          <label style={filterLabelStyle}>Min Price ($): </label>
-          <input 
-            type="number" 
-            name="minPrice" 
-            value={filters.minPrice} 
-            onChange={handleFilterChange} 
-            style={filterInputStyle} 
-            placeholder="Min price"
+        <div style={{ width: '100%', maxWidth: '400px' }}>
+          <label style={filterLabelStyle}>Price Range ($): </label>
+          <PriceRangeFilter 
+            min={minDataPrice} 
+            max={maxDataPrice}
+            onChange={handlePriceRangeChange}
           />
         </div>
-        
-        <div>
-          <label style={filterLabelStyle}>Max Price ($): </label>
-          <input 
-            type="number" 
-            name="maxPrice" 
-            value={filters.maxPrice} 
-            onChange={handleFilterChange} 
-            style={filterInputStyle} 
-            placeholder="Max price"
-          />
-        </div>
-        
+
         <div>
           <label style={filterLabelStyle}>From Date: </label>
           <input 
@@ -173,18 +172,21 @@ const SalesTable = ({ data }) => {
         
         {/* 👇 Added reset filters button */}
         <button 
-          onClick={() => setFilters({
-            product: '',
-            customer: '',
-            minPrice: '',
-            maxPrice: '',
-            minDate: '',
-            maxDate: ''
-          })}
+          onClick={() => {
+            setFilters({
+              product: '',
+              customer: '',
+              minPrice: minDataPrice,  // Reset to min data price
+              maxPrice: maxDataPrice,  // Reset to max data price
+              minDate: '',
+              maxDate: ''
+            });
+          }}
           style={resetButtonStyle}
         >
           Reset Filters
         </button>
+
       </div>
 
       {/* 👇 Added results count */}
