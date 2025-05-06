@@ -33,14 +33,14 @@ const FilterSection = ({ filters, setFilters, minDataPrice, maxDataPrice }) => {
   return (
     <div style={filterStyles.container}>
       <div>
-        <label style={filterStyles.label}>Product: </label>
+        <label style={{...filterStyles.label, marginLeft: '6px'}}>Product: </label>
         <br />
         <input 
           type="text" 
           name="product" 
           value={filters.product} 
           onChange={handleFilterChange} 
-          style={{ ...filterStyles.input, marginTop: '12px' }}
+          style={{ ...filterStyles.input, marginTop: '12px', marginLeft: '6px' }}
           placeholder="Filter by product"
         />
       </div>
