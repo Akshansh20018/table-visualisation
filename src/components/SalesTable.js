@@ -1,6 +1,6 @@
 // src/components/SalesTable.js
-import React, { useState } from 'react';
-import PriceRangeFilter from './PriceRangeFilter'; // 👈 Import the new component
+import React, { useState, useEffect } from 'react';
+import PriceRangeFilter from './PriceRangeFilter';
 
 const SalesTable = ({ data }) => {
   // Existing sorting state
@@ -9,7 +9,7 @@ const SalesTable = ({ data }) => {
     direction: 'ascending'
   });
   
-  // 👇 Added filter state
+  // Filter state
   const [filters, setFilters] = useState({
     product: '',
     customer: '',
@@ -19,18 +19,24 @@ const SalesTable = ({ data }) => {
     maxDate: ''
   });
 
-    // Calculate min and max prices from data for the slider
-    const minDataPrice = Math.floor(Math.min(...data.map(item => item.price)));
-    const maxDataPrice = Math.ceil(Math.max(...data.map(item => item.price)));
+  // Added pagination state
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    itemsPerPage: 10
+  });
+
+  // Calculate min and max prices from data for the slider
+  const minDataPrice = Math.floor(Math.min(...data.map(item => item.price)));
+  const maxDataPrice = Math.ceil(Math.max(...data.map(item => item.price)));
   
-    // Handle price range changes from the slider component
-    const handlePriceRangeChange = ({ min, max }) => {
-      setFilters({
-        ...filters,
-        minPrice: min,
-        maxPrice: max
-      });
-    };  
+  // Handle price range changes from the slider component
+  const handlePriceRangeChange = ({ min, max }) => {
+    setFilters({
+      ...filters,
+      minPrice: min,
+      maxPrice: max
+    });
+  };  
 
   // Existing sorting logic
   const requestSort = (key) => {
@@ -41,7 +47,7 @@ const SalesTable = ({ data }) => {
     setSortConfig({ key, direction });
   };
 
-  // 👇 Added filter change handler
+  // Filter change handler
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters({
@@ -50,7 +56,7 @@ const SalesTable = ({ data }) => {
     });
   };
 
-  // 👇 Added function to filter data
+  // Function to filter data
   const getFilteredData = () => {
     return data.filter(item => {
       // Filter by product name
@@ -83,7 +89,7 @@ const SalesTable = ({ data }) => {
     });
   };
 
-  // 👇 Modified to use filtered data before sorting
+  // Modified to use filtered data before sorting
   const getSortedData = () => {
     const filteredData = getFilteredData();
     const dataWithTotal = filteredData.map(item => ({
@@ -104,7 +110,39 @@ const SalesTable = ({ data }) => {
     });
   };
 
-  const salesWithTotal = getSortedData();
+  // Get sorted and filtered data
+  const filteredSortedData = getSortedData();
+  
+  // Added pagination logic
+  const indexOfLastItem = pagination.currentPage * pagination.itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - pagination.itemsPerPage;
+  const currentItems = filteredSortedData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredSortedData.length / pagination.itemsPerPage);
+  
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    setPagination({
+      ...pagination,
+      currentPage: newPage
+    });
+  };
+  
+  // Handle items per page change
+  const handleItemsPerPageChange = (e) => {
+    const newItemsPerPage = parseInt(e.target.value, 10);
+    setPagination({
+      currentPage: 1, // Reset to first page when changing items per page
+      itemsPerPage: newItemsPerPage
+    });
+  };
+  
+  // Reset to first page when filters change
+  useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      currentPage: 1
+    }));
+  }, [filters]);
   
   const getSortIndicator = (key) => {
     if (sortConfig.key !== key) return '⇵';
@@ -113,7 +151,7 @@ const SalesTable = ({ data }) => {
 
   return (
     <div>
-      {/* 👇 Added filter controls */}
+      {/* Filter controls */}
       <div style={{ marginBottom: '20px', display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
         <div>
           <label style={filterLabelStyle}>Product: </label>
@@ -170,7 +208,7 @@ const SalesTable = ({ data }) => {
           />
         </div>
         
-        {/* 👇 Added reset filters button */}
+        {/* Reset filters button */}
         <button 
           onClick={() => {
             setFilters({
@@ -186,12 +224,26 @@ const SalesTable = ({ data }) => {
         >
           Reset Filters
         </button>
-
       </div>
 
-      {/* 👇 Added results count */}
-      <div style={{ marginBottom: '10px' }}>
-        <strong>Showing {salesWithTotal.length} of {data.length} entries</strong>
+      {/* Items per page selector */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+        <div>
+          <strong>Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredSortedData.length)} of {filteredSortedData.length} entries</strong>
+        </div>
+        <div>
+          <label style={{ marginRight: '10px' }}>Items per page:</label>
+          <select 
+            value={pagination.itemsPerPage} 
+            onChange={handleItemsPerPageChange}
+            style={{ padding: '5px' }}
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
       </div>
       
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -221,8 +273,8 @@ const SalesTable = ({ data }) => {
           </tr>
         </thead>
         <tbody>
-          {salesWithTotal.length > 0 ? (
-            salesWithTotal.map(sale => (
+          {currentItems.length > 0 ? (
+            currentItems.map(sale => (
               <tr key={sale.id} style={{ borderBottom: '1px solid #ddd' }}>
                 <td style={tableCellStyle}>{sale.id}</td>
                 <td style={tableCellStyle}>{sale.product}</td>
@@ -234,7 +286,6 @@ const SalesTable = ({ data }) => {
               </tr>
             ))
           ) : (
-            // 👇 Added no results message
             <tr>
               <td colSpan="7" style={{...tableCellStyle, textAlign: 'center', padding: '20px'}}>
                 No matching records found
@@ -246,15 +297,83 @@ const SalesTable = ({ data }) => {
           <tr style={{ backgroundColor: '#f9f9f9', fontWeight: 'bold' }}>
             <td colSpan="3" style={tableCellStyle}>Total Sales:</td>
             <td style={tableCellStyle}>
-              {salesWithTotal.reduce((sum, item) => sum + item.quantity, 0)}
+              {filteredSortedData.reduce((sum, item) => sum + item.quantity, 0)}
             </td>
             <td style={tableCellStyle}>
-              ${salesWithTotal.reduce((sum, item) => sum + parseFloat(item.total), 0).toFixed(2)}
+              ${filteredSortedData.reduce((sum, item) => sum + parseFloat(item.total), 0).toFixed(2)}
             </td>
             <td colSpan="2" style={tableCellStyle}></td>
           </tr>
         </tfoot>
       </table>
+
+      {/* Pagination controls */}
+      {filteredSortedData.length > 0 && (
+        <div style={paginationContainerStyle}>
+          <button 
+            onClick={() => handlePageChange(1)} 
+            disabled={pagination.currentPage === 1}
+            style={paginationButtonStyle}
+          >
+            &laquo; First
+          </button>
+          
+          <button 
+            onClick={() => handlePageChange(pagination.currentPage - 1)} 
+            disabled={pagination.currentPage === 1}
+            style={paginationButtonStyle}
+          >
+            &lt; Prev
+          </button>
+          
+          {/* Page number buttons */}
+          <div style={pageNumbersStyle}>
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              // Show 5 page numbers centered around current page
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (pagination.currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (pagination.currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = pagination.currentPage - 2 + i;
+              }
+              
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  style={{
+                    ...paginationButtonStyle,
+                    backgroundColor: pagination.currentPage === pageNum ? '#4CAF50' : '#f1f1f1',
+                    color: pagination.currentPage === pageNum ? 'white' : 'black'
+                  }}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+          </div>
+          
+          <button 
+            onClick={() => handlePageChange(pagination.currentPage + 1)} 
+            disabled={pagination.currentPage === totalPages}
+            style={paginationButtonStyle}
+          >
+            Next &gt;
+          </button>
+          
+          <button 
+            onClick={() => handlePageChange(totalPages)} 
+            disabled={pagination.currentPage === totalPages}
+            style={paginationButtonStyle}
+          >
+            Last &raquo;
+          </button>
+        </div>
+      )}
     </div>
   );
 };
@@ -271,7 +390,7 @@ const tableCellStyle = {
   textAlign: 'left'
 };
 
-// 👇 Added new styles for filter controls
+// Styles for filter controls
 const filterLabelStyle = {
   fontWeight: 'bold',
   marginRight: '5px'
@@ -292,6 +411,29 @@ const resetButtonStyle = {
   borderRadius: '4px',
   cursor: 'pointer',
   fontWeight: 'bold'
+};
+
+// Added pagination styles
+const paginationContainerStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginTop: '20px',
+  gap: '5px'
+};
+
+const paginationButtonStyle = {
+  padding: '8px 12px',
+  border: '1px solid #ddd',
+  backgroundColor: '#f1f1f1',
+  cursor: 'pointer',
+  borderRadius: '4px',
+  margin: '0 2px'
+};
+
+const pageNumbersStyle = {
+  display: 'flex',
+  margin: '0 10px'
 };
 
 export default SalesTable;
