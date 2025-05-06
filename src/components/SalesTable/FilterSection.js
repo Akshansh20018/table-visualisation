@@ -23,8 +23,8 @@ const FilterSection = ({ filters, setFilters, minDataPrice, maxDataPrice }) => {
     setFilters({
       product: '',
       customer: '',
-      minPrice: minDataPrice,
-      maxPrice: maxDataPrice,
+      minPrice: '',
+      maxPrice: '',
       minDate: '',
       maxDate: ''
     });
@@ -34,30 +34,33 @@ const FilterSection = ({ filters, setFilters, minDataPrice, maxDataPrice }) => {
     <div style={filterStyles.container}>
       <div>
         <label style={filterStyles.label}>Product: </label>
+        <br />
         <input 
           type="text" 
           name="product" 
           value={filters.product} 
           onChange={handleFilterChange} 
-          style={filterStyles.input} 
+          style={{ ...filterStyles.input, marginTop: '12px' }}
           placeholder="Filter by product"
         />
       </div>
       
       <div>
         <label style={filterStyles.label}>Customer: </label>
+        <br />
         <input 
           type="text" 
           name="customer" 
           value={filters.customer} 
           onChange={handleFilterChange} 
-          style={filterStyles.input} 
+          style={{ ...filterStyles.input, marginTop: '12px' }}
           placeholder="Filter by customer"
         />
       </div>
       
-      <div style={{ width: '100%', maxWidth: '400px' }}>
+      <div>
         <label style={filterStyles.label}>Price Range ($): </label>
+        <br />
         <PriceRangeFilter 
           min={minDataPrice} 
           max={maxDataPrice}
@@ -67,29 +70,34 @@ const FilterSection = ({ filters, setFilters, minDataPrice, maxDataPrice }) => {
 
       <div>
         <label style={filterStyles.label}>From Date: </label>
+        <br />
         <input 
           type="date" 
           name="minDate" 
           value={filters.minDate} 
           onChange={handleFilterChange} 
-          style={filterStyles.input}
+          style={{ ...filterStyles.input, marginTop: '12px' }}
         />
       </div>
       
       <div>
         <label style={filterStyles.label}>To Date: </label>
+        <br />
         <input 
           type="date" 
           name="maxDate" 
           value={filters.maxDate} 
           onChange={handleFilterChange} 
-          style={filterStyles.input}
+          style={{ ...filterStyles.input, marginTop: '12px' }}
         />
       </div>
-      
-      <button onClick={resetFilters} style={filterStyles.resetButton}>
-        Reset Filters
-      </button>
+
+      <div style={{ marginLeft: '30px' }}>
+        <br />
+        <button onClick={resetFilters} style={{ ...filterStyles.resetButton, marginTop: '12px' }}>
+          Reset Filters
+        </button>
+      </div>
     </div>
   );
 };
