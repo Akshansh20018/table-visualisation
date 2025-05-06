@@ -1,6 +1,6 @@
 import React from 'react';
 import SalesTable from './components/SalesTable';
-import salesData from './data/salesData';
+import salesData from './data/salesData'; 
 
 function App() {
   return (
